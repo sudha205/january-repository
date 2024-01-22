@@ -14,7 +14,7 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 	</db:config>
 	<flow name="scatter-gatherFlow" doc:id="dba1fd66-4006-4d27-9f14-e4ebdc25c782" >
 		<http:listener doc:name="Listener" doc:id="73a3928d-fab8-4234-8235-b9fd23269063" config-ref="HTTP_Listener_config" path="/scatter"/>
-		<logger level="INFO" doc:name="Logger" doc:id="e69b7ad3-fc5f-44ff-a6f0-fd5209a871fe" message="request received....."/>
+		<logger level="INFO" doc:name="Logger" doc:id="e69b7ad3-fc5f-44ff-a6f0-fd5209a871fe" message="request received.....FLOW START"/>
 		<scatter-gather doc:name="Scatter-Gather" doc:id="c14acee4-d94d-4395-b0ee-e4f2025deb60" >
 			<route >
 				<logger level="INFO" doc:name="Logger" doc:id="b7c846c3-4cf6-44e9-81f8-9f0003e8847f" message="first route"/>
