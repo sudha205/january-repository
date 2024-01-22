@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="db50fff0-402a-4f9c-a52f-5782b1763964" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="ec67d0f1-9fb0-434b-b542-fa0d2cb5dab7" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="root" database="sample" />
+	</db:config>
+	<flow name="scatter-gatherFlow" doc:id="dba1fd66-4006-4d27-9f14-e4ebdc25c782" >
+		<http:listener doc:name="Listener" doc:id="73a3928d-fab8-4234-8235-b9fd23269063" config-ref="HTTP_Listener_config" path="/scatter"/>
+		<logger level="INFO" doc:name="Logger" doc:id="e69b7ad3-fc5f-44ff-a6f0-fd5209a871fe" message="request received....."/>
+		<scatter-gather doc:name="Scatter-Gather" doc:id="c14acee4-d94d-4395-b0ee-e4f2025deb60" >
+			<route >
+				<logger level="INFO" doc:name="Logger" doc:id="b7c846c3-4cf6-44e9-81f8-9f0003e8847f" message="first route"/>
+				<ee:transform doc:name="Transform Message" doc:id="03d03cc9-e6e8-4ada-94c8-3b17dfede29d" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"orderId" : 12345,
+	"productName" : "Face product",
+	"expiryDate" : "21-05-2024"
+	
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</route>
+			<route >
+				<logger level="INFO" doc:name="Logger" doc:id="a705f99d-37a7-4491-9881-03f805d89bc7" message="second route"/>
+				<ee:transform doc:name="Transform Message" doc:id="d8c36bef-fc10-4253-b870-e7677de12a88" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"deliverBy" : "Ekart system private ltd"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</route>
+			<route >
+				<logger level="INFO" doc:name="Logger" doc:id="043782e8-72a0-4631-84a3-0e435dde2dda" message="third route"/>
+				<db:select doc:name="Select" doc:id="776c185b-16ed-4493-a11b-d879e49a1e82" config-ref="Database_Config">
+					<db:sql ><![CDATA[SELECT emp_name,emp_email,emp_address,emp_telephone FROM emp_table where emp_id =:id]]></db:sql>
+					<db:input-parameters ><![CDATA[#[{
+	id:payload.id
+}]]]></db:input-parameters>
+				</db:select>
+				<ee:transform doc:name="Transform Message" doc:id="714690d6-f8d5-43f5-a25f-e848373ac987" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</route>
+		</scatter-gather>
+		<ee:transform doc:name="Transform Message" doc:id="eb72cb29-1ceb-4b3c-aad2-8b3a29db403e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
